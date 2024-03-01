@@ -28,6 +28,9 @@ RUN apt-get update && \
     apt-get install -y maven openjdk-17-jdk && \
     apt-get clean
 
+# Establecer el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
 # Copiar el pom.xml y los fuentes
 COPY pom.xml .
 COPY src ./src/
@@ -37,6 +40,9 @@ RUN mvn -X -f pom.xml clean package -DskipTests
 
 # Etapa de ejecución
 FROM openjdk:17-jdk-slim
+
+# Establecer el directorio de trabajo dentro del contenedor
+WORKDIR /app
 
 # Copiar el JAR de la etapa de construcción
 COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar /app/demo-0.0.1-SNAPSHOT.jar
