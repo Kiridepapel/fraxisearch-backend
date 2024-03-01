@@ -1,5 +1,6 @@
 # Etapa de construcción
-FROM maven:3.9.3-eclipse-temurin-17 AS build
+# FROM maven:3.9.3-eclipse-temurin-17 AS build
+FROM adoptopenjdk:17-jdk-hotspot AS build
 
 # Copiar el pom.xml y los fuentes
 COPY pom.xml .
