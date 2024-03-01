@@ -14,11 +14,8 @@ FROM openjdk:17-jdk-slim
 # Actualizar los paquetes y luego instalar libglib2.0-0
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        libglib2.0-0 && \
-        libnspr4 \
-        libnss3 \
-        libnss3-nssdb \
-        libnss3-tools \
+    apt-get install -y libglib2.0-0 && \
+    apt-get install -y libnss3 \
     rm -rf /var/lib/apt/lists/*
 
 # Copiar el JAR de la etapa de construcción
