@@ -5,6 +5,9 @@ FROM maven:3.9.3-eclipse-temurin-17 AS build
 COPY pom.xml .
 COPY src ./src/
 
+# Instalar dependencias
+RUN apt install -y libglib2.0-0
+
 # Construir la aplicación
 RUN mvn -X -f pom.xml clean package -DskipTests
 
