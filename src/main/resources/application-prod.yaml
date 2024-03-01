@@ -1,0 +1,19 @@
+APP_PRODUCTION: true
+FRONTEND_URL: https://fraxidetail.vercel.app
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgresdb:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maxLifetime: 150000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format-sql: true
