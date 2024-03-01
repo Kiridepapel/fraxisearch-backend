@@ -26,6 +26,7 @@ FROM ubuntu:20.04 AS build
 # Actualizar e instalar las dependencias necesarias
 RUN apt-get update && \
     apt-get install -y maven openjdk-17-jdk && \
+    apt-get install -y libglib2.0-0 && \
     apt-get clean
 
 # Establecer el directorio de trabajo dentro del contenedor
