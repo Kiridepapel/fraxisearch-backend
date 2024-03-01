@@ -11,6 +11,12 @@ RUN mvn -X -f pom.xml clean package -DskipTests
 # Etapa de ejecución
 FROM openjdk:17-jdk-slim
 
+# Actualizar los paquetes y luego instalar libglib2.0-0
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copiar el JAR de la etapa de construcción
 COPY --from=build target/demo-0.0.1-SNAPSHOT.jar /app/demo-0.0.1-SNAPSHOT.jar
 
