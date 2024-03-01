@@ -7,7 +7,7 @@ COPY pom.xml .
 COPY src ./src/
 
 # Instalar dependencias
-RUN apt install -y libglib2.0-0
+RUN apt-get update && apt-get install -y libglib2.0-0
 
 # Construir la aplicación
 RUN mvn -X -f pom.xml clean package -DskipTests
