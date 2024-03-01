@@ -39,7 +39,7 @@ RUN mvn -X -f pom.xml clean package -DskipTests
 FROM openjdk:17-jdk-slim
 
 # Copiar el JAR de la etapa de construcción
-COPY --from=build /path/to/your/target/demo-0.0.1-SNAPSHOT.jar /app/demo-0.0.1-SNAPSHOT.jar
+COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar /app/demo-0.0.1-SNAPSHOT.jar
 
 # Exponer el puerto
 EXPOSE 8080
