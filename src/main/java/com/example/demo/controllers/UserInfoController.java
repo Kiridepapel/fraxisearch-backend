@@ -107,4 +107,9 @@ public class UserInfoController {
     return new ResponseEntity<>(this.userInfoService.test(), HttpStatus.OK);
   }
 
+  @GetMapping("/doc")
+  public ResponseEntity<?> doc() throws Exception {
+    return new ResponseEntity<>(this.userInfoService.doc(), HttpStatus.OK);
+  }
+
 }

@@ -51,7 +51,8 @@ public class UserInfoService {
   // ? Métodos de configuración
   public ThreadLocal<RemoteWebDriver> setUp(ThreadLocal<RemoteWebDriver> driver) throws Exception {
     ChromeOptions options = new ChromeOptions();
-    options.addArguments("--start-maximized");
+    options.addArguments("--start-maximized"); // Maximizar ventana
+    options.addArguments("--disable-notifications"); // Desactivar notificaciones
     if (this.isProduction) {
       driver.set(new RemoteWebDriver(new URL("http://selenium-hub:4444"), options));
     } else {
@@ -68,6 +69,41 @@ public class UserInfoService {
 
   // ? Prueba
   public String test() throws Exception {
+    // Datos
+    String email = "email";
+    String password = "password";
+
+    // Controlador del navegador a usar
+    ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+    driver = this.setUp(driver);
+    driver.get().get("https://login.microsoftonline.com");
+    driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+    WebDriverWait wait = new WebDriverWait(driver.get(), Duration.ofSeconds(10));
+
+    // Encontrar el campo de correo electrónico y escribir tu correo
+    WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("i0116")));
+    emailField.sendKeys(email);
+
+    // Hacer clic en el botón "Siguiente"
+    WebElement nextButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("idSIButton9")));
+    nextButton.click();
+
+    // Esperar a que se cargue la página y encontrar el campo de contraseña
+    WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("i0118")));
+    passwordField.sendKeys(password);
+
+    // Hacer clic en el botón "Iniciar sesión"
+    WebElement signInButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("idSIButton9")));
+    signInButton.click();
+
+    Thread.sleep(10000);
+
+    this.closeBrowser(driver);
+
+    return "";
+  }
+
+  public String doc() throws Exception {
     ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
     driver = this.setUp(driver);
     driver.get().get("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
