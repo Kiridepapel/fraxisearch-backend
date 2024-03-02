@@ -1,9 +1,5 @@
 package com.example.demo.controllers;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,14 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dtos.RequestConditionsDTO;
 import com.example.demo.services.UserInfoService;
-import com.example.demo.utils.DataUtils;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/v1")
-@SuppressWarnings("unused")
 public class TestController {
   // Variables de entorno
   @Value("${FRONTEND_URL}")
@@ -31,16 +24,13 @@ public class TestController {
   @Autowired
   private UserInfoService userInfoService;
   // Variables
-  private List<String> allowedOrigins;
-  protected static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
-  public static String remote_url = "http://localhost:4444";
-  public final static int TIMEOUT = 5;
+  // private List<String> allowedOrigins;
   
   // Constructor
-  @PostConstruct
-  public void init() {
-    this.allowedOrigins = Arrays.asList(frontendUrl);
-  }
+  // @PostConstruct
+  // public void init() {
+  //   this.allowedOrigins = Arrays.asList(frontendUrl);
+  // }
 
   // Métodos principales
   @GetMapping("/find")
@@ -75,7 +65,7 @@ public class TestController {
   }
 
   @GetMapping("/test")
-  public ResponseEntity<?> test() {
+  public ResponseEntity<?> test() throws Exception {
     this.userInfoService.test();
     return new ResponseEntity<>("Ok", HttpStatus.OK);
   }

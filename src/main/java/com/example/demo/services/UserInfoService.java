@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import java.net.URL;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -9,6 +10,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,18 +33,44 @@ import lombok.extern.java.Log;
 public class UserInfoService {
   @Autowired
   private UserInfoRepository userInfoRepository;
+  // Variables
+  protected static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+  public static String remote_url = "http://selenium-hub:4444";
+  public final static int TIMEOUT = 5;
 
-  public void test() {
-    // * Controlador del navegador a usar
-    WebDriverManager.chromedriver().setup();
-    WebDriver driver = new ChromeDriver();
+  public void setUp(String url) throws Exception {
+    ChromeOptions options = new ChromeOptions();
+    options.addArguments("--start-maximized");
+    driver.set(new RemoteWebDriver(new URL(remote_url), options));
+    log.info("Browser Started : Chrome");
+
+    driver.get().get(url);
+    driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+  }
+
+  public WebDriver getDriver() {
+    return driver.get();
+  }
+
+  public void closeBrowser() {
+    driver.get().quit();
+    driver.remove();
+  }
+
+  public void test() throws Exception {
+    this.setUp("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
+    Thread.sleep(2000);
+    // // * Controlador del navegador a usar
+    // WebDriverManager.chromedriver().setup();
+    // WebDriver driver = new ChromeDriver();
+    WebDriver driver = this.getDriver();
 
     try {
-      driver.get("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
+      // driver.get("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
 
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-      wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".player_conte")));
-      // Thread.sleep(2000);
+      // WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+      // wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".player_conte")));
+      
       // Obtiene el HTML después de hacer click
       String html = driver.getPageSource();
       Document document = Jsoup.parse(html);
@@ -52,7 +81,8 @@ public class UserInfoService {
       log.warning(e.getMessage());
       throw new RuntimeException(e);
     } finally {
-      driver.quit();
+      // driver.quit();
+      this.closeBrowser();
     }
   }
 
