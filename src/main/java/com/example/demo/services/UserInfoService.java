@@ -15,6 +15,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dtos.RequestConditionsDTO;
@@ -31,62 +32,53 @@ import lombok.extern.java.Log;
 // @SuppressWarnings("unused")
 @Log
 public class UserInfoService {
+  @Value("${APP_PRODUCTION}")
+  private boolean isProduction;
   @Autowired
   private UserInfoRepository userInfoRepository;
   // Variables
-  protected static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
-  public static String remote_url = "http://selenium-hub:4444";
   public final static int TIMEOUT = 5;
 
-  public void setUp(String url) throws Exception {
+  public ThreadLocal<RemoteWebDriver> setUp(ThreadLocal<RemoteWebDriver> driver) throws Exception {
     ChromeOptions options = new ChromeOptions();
     options.addArguments("--start-maximized");
-    driver.set(new RemoteWebDriver(new URL(remote_url), options));
-    log.info("Browser Started : Chrome");
-    driver.get().get(url);
-    driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+    if (this.isProduction) {
+      driver.set(new RemoteWebDriver(new URL("http://selenium-hub:4444"), options));
+    } else {
+      WebDriverManager.chromedriver().setup();
+      driver.set(new ChromeDriver(options));
+    }
+    return driver;
   }
 
-  public WebDriver getDriver() {
-    return driver.get();
-  }
-
-  public void closeBrowser() {
+  public void closeBrowser(ThreadLocal<RemoteWebDriver> driver) {
     driver.get().quit();
     driver.remove();
   }
 
-  public Document test() throws Exception {
-    this.setUp("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
-    // Thread.sleep(2000);
-    // // * Controlador del navegador a usar
-    // WebDriverManager.chromedriver().setup();
-    // WebDriver driver = new ChromeDriver();
-    WebDriver driver = this.getDriver();
+  public String test() throws Exception {
+    ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+    driver = this.setUp(driver);
+    driver.get().get("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
+    driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
 
-    try {
-      // driver.get("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
-
-      // WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-      // wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".player_conte")));
-      
-      // Obtiene el HTML después de hacer click
-      String html = driver.getPageSource();
+    try {      
+      String html = driver.get().getPageSource();
       Document document = Jsoup.parse(html);
 
-      return document;
+      log.info("hola: " + document);
 
+      return "";
     } catch (Exception e) {
       log.warning(e.getMessage());
       throw new RuntimeException(e);
     } finally {
-      // driver.quit();
-      this.closeBrowser();
+      this.closeBrowser(driver);
     }
   }
 
   // Validar que el usuario no exista en la base de datos y seleccionar el tipo de búsqueda
-  public UserInfoDTO validateDBAndSelectTypeOfSearch(RequestConditionsDTO request) {
+  public UserInfoDTO validateDBAndSelectTypeOfSearch(RequestConditionsDTO request) throws Exception {
     // * Variables
     Optional<UserInfoEntity> userEntity = Optional.empty();
     UserInfoDTO user = new UserInfoDTO();
@@ -105,21 +97,21 @@ public class UserInfoService {
       return this.constructResponse(userEntity.get().toDTO(), request.getConditions());
     } else {
       // * Controlador del navegador a usar
-      WebDriverManager.chromedriver().setup();
-      WebDriver driver = new ChromeDriver();
+      ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+      driver = this.setUp(driver);
       
       try {
         // * Recopila: Información básica
         if (request.namesRequestIsValid()) {
-          user = this.findDNIByNames(driver, request.getNames(), request.getFatherLastName(), request.getMotherLastName());
+          user = this.findDNIByNames(driver.get(), request.getNames(), request.getFatherLastName(), request.getMotherLastName());
         } else if (request.dniResquestIsValid()) {
-          user = this.findNamesByDNI(driver, request.getDni());
+          user = this.findNamesByDNI(driver.get(), request.getDni());
         }
         user.formatNames(); // Le da formato a los nombres
         userEntity = Optional.of(user.toEntity());
 
         // * Recopila: Cumpleaños
-        user = this.findBirthDate(driver, user);
+        user = this.findBirthDate(driver.get(), user);
 
         // * Guardar
         this.userInfoRepository.save(user.toEntity());
@@ -129,7 +121,7 @@ public class UserInfoService {
         log.warning(e.getMessage());
         throw new RuntimeException(e);
       } finally {
-        driver.quit(); // Cierra el navegador
+        this.closeBrowser(driver);
       }
     }
   }
@@ -140,6 +132,7 @@ public class UserInfoService {
       UserInfoDTO user = new UserInfoDTO();
       // Abre la página web
       driver.get("https://el-dni.com/index.php");
+      driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
       
       // Encuentra el campo de entrada y escribe texto en él
       WebElement inputField = driver.findElement(By.id("dni"));
@@ -174,6 +167,8 @@ public class UserInfoService {
       UserInfoDTO user = new UserInfoDTO();
       // Abre la página web
       driver.get("https://el-dni.com/buscar-dni-por-nombre.php");  
+      driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+
       // Encuentra el campo de entrada y escribe texto en él
       WebElement inputNames = driver.findElement(By.id("nombres"));
       WebElement inputFatherLastNames = driver.findElement(By.id("ape_pat"));
@@ -208,6 +203,7 @@ public class UserInfoService {
     try {
       // Abre la página web
       driver.get("https://el-dni.com/buscar-cumpleanios-por-nombres.php");
+      driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
       
       // Encuentra el campo de entrada y escribe texto en él
       // Encuentra el campo de entrada y escribe texto en él

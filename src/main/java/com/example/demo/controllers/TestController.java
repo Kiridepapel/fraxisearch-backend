@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dtos.RequestConditionsDTO;
+import com.example.demo.dtos.UserInfoDTO;
 import com.example.demo.services.UserInfoService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class TestController {
   // Métodos principales
   @GetMapping("/find")
   public ResponseEntity<?> find(HttpServletRequest request,
-      @RequestBody(required = true) RequestConditionsDTO requestConditions) {
+      @RequestBody(required = true) RequestConditionsDTO requestConditions) throws Exception {
     
     // Validaciones
     // DataUtils.verifyAllowedOrigin(this.allowedOrigins, request.getHeader("Origin"));
@@ -60,14 +61,14 @@ public class TestController {
     }
     // Formate los nombres para que coincidan con los de la BD
     requestConditions.formatNames();
-
-    return new ResponseEntity<>(this.userInfoService.validateDBAndSelectTypeOfSearch(requestConditions), HttpStatus.OK);
+    UserInfoDTO userInfo = this.userInfoService.validateDBAndSelectTypeOfSearch(requestConditions);
+    
+    return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
   @GetMapping("/test")
   public ResponseEntity<?> test() throws Exception {
-    this.userInfoService.test();
-    return new ResponseEntity<>("Ok", HttpStatus.OK);
+    return new ResponseEntity<>(this.userInfoService.test(), HttpStatus.OK);
   }
 
 }
