@@ -26,6 +26,7 @@ import com.example.demo.entity.UserInfoEntity;
 import com.example.demo.exceptions.SecurityExceptions.NotFoundData;
 import com.example.demo.repository.UserInfoRepository;
 import com.example.demo.utils.DataUtils;
+import com.example.demo.utils.SeleniumUtils;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.java.Log;
@@ -45,8 +46,6 @@ public class UserInfoService {
   // Inyección de dependencias
   @Autowired
   private UserInfoRepository userInfoRepository;
-  // Variables
-  public final static int TIMEOUT = 5;
 
   // ? Métodos de configuración
   public ThreadLocal<RemoteWebDriver> setUp(ThreadLocal<RemoteWebDriver> driver) throws Exception {
@@ -77,7 +76,7 @@ public class UserInfoService {
     ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
     driver = this.setUp(driver);
     driver.get().get("https://login.microsoftonline.com");
-    driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+    driver.get().manage().timeouts().implicitlyWait(SeleniumUtils.TIMEOUT);
     WebDriverWait wait = new WebDriverWait(driver.get(), Duration.ofSeconds(10));
 
     // Encontrar el campo de correo electrónico y escribir tu correo
@@ -107,7 +106,7 @@ public class UserInfoService {
     ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
     driver = this.setUp(driver);
     driver.get().get("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
-    driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+    driver.get().manage().timeouts().implicitlyWait(SeleniumUtils.TIMEOUT);
 
     try {
       String html = driver.get().getPageSource();
@@ -221,8 +220,7 @@ public class UserInfoService {
       UserInfoDTO user = new UserInfoDTO();
       // Abre la página web
       driver.get(this.link1);
-      driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
-      Thread.sleep(500);
+      driver.manage().timeouts().implicitlyWait(SeleniumUtils.TIMEOUT);
       
       // Encuentra el campo de entrada y escribe texto en él
       WebElement inputField = driver.findElement(By.id("dni"));
@@ -231,10 +229,9 @@ public class UserInfoService {
       // Encuentra el botón por su texto visible y haz clic en él
       WebElement button = driver.findElement(By.xpath("//button[contains(text(),'BUSCAR')]"));
       button.click();
-      // Espera a que la página haya terminado de cargar el primer elemento a usar con un tiempo máximo de 5 segundos
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-      wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#nombres")));
-      Thread.sleep(1500);
+      // Espera que el texto de un elemento con ID "nombres" cambie
+      SeleniumUtils.waitUntilTextChanges(driver, By.id("nombres"));
+
       // Obtiene el HTML después de hacer click
       String html = driver.getPageSource();
       Document document = Jsoup.parse(html);
@@ -257,8 +254,7 @@ public class UserInfoService {
       UserInfoDTO user = new UserInfoDTO();
       // Abre la página web
       driver.get(this.link2);  
-      driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
-      Thread.sleep(500);
+      driver.manage().timeouts().implicitlyWait(SeleniumUtils.TIMEOUT);
 
       // Encuentra el campo de entrada y escribe texto en él
       WebElement inputNames = driver.findElement(By.id("nombres"));
@@ -266,14 +262,14 @@ public class UserInfoService {
       WebElement inputMotherLastNames = driver.findElement(By.id("ape_mat"));
       inputNames.sendKeys(names);
       inputFatherLastNames.sendKeys(fatherLastName);
-      inputMotherLastNames.sendKeys(motherLastName);  
+      inputMotherLastNames.sendKeys(motherLastName);
+      
       // Encuentra el botón por su texto visible y haz clic en él
       WebElement button = driver.findElement(By.xpath("//button[contains(text(),'BUSCAR')]"));
       button.click();
-      // Espera a que la página haya terminado de cargar el primer elemento a usar con un tiempo máximo de 5 segundos
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-      wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#numero2")));
-      Thread.sleep(1500);
+      // Espera que el texto de un elemento con ID "numero2" cambie
+      SeleniumUtils.waitUntilTextChanges(driver, By.id("numero2"));
+      
       // Obtiene el HTML después de hacer click
       String html = driver.getPageSource();
       Document document = Jsoup.parse(html);
@@ -282,7 +278,8 @@ public class UserInfoService {
       user.setNames(names);
       user.setFatherLastName(fatherLastName);
       user.setMotherLastName(motherLastName);
-      user.setDni(document.select("#numero2").text().trim());  
+      user.setDni(document.select("#numero2").text().trim());
+
       return user;
     } catch (Exception e) {
       log.warning("Error en findDNIByNames(): " + e.getMessage());
@@ -294,8 +291,7 @@ public class UserInfoService {
     try {
       // Abre la página web
       driver.get(this.link3);
-      driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
-      Thread.sleep(500);
+      driver.manage().timeouts().implicitlyWait(SeleniumUtils.TIMEOUT);
       
       // Encuentra el campo de entrada y escribe texto en él
       // Encuentra el campo de entrada y escribe texto en él
@@ -309,10 +305,9 @@ public class UserInfoService {
       // Encuentra el botón por su texto visible y haz clic en él
       WebElement button = driver.findElement(By.xpath("//button[contains(text(),'BUSCAR')]"));
       button.click();
-      // Espera a que la página haya terminado de cargar el primer elemento a usar con un tiempo máximo de 5 segundos
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-      wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#nombres")));
-      Thread.sleep(1500);
+      // Espera que el texto de un elemento con ID "fecha_cumpleanios" cambie
+      SeleniumUtils.waitUntilTextChanges(driver, By.id("fecha_cumpleanios"));
+
       // Obtiene el HTML después de hacer click
       String html = driver.getPageSource();
       Document document = Jsoup.parse(html);
