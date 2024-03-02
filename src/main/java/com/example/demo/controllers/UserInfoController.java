@@ -38,6 +38,7 @@ public class UserInfoController {
   public void init() {
     this.allowedOrigins = Arrays.asList(frontendUrl);
   }
+  
   // Métodos principales
   @GetMapping("/find-by-full-name")
   public ResponseEntity<?> findByNames(@RequestBody(required = true) RequestByFullNameDTO request) throws Exception {
@@ -66,7 +67,7 @@ public class UserInfoController {
     // Formatea los nombres para que coincidan con los de la BD
     requestDTO.formatNames();
 
-    UserInfoDTO userInfo = this.userInfoService.findByRequestSingleName(requestDTO);
+    UserInfoDTO userInfo = this.userInfoService.searchByRequestSingleName(requestDTO);
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
@@ -82,11 +83,10 @@ public class UserInfoController {
     // Formatea los nombres para que coincidan con los de la BD
     requestDTO.formatNames();
 
-    UserInfoDTO userInfo = this.userInfoService.findByRequestSingleName(requestDTO);
+    UserInfoDTO userInfo = this.userInfoService.searchByRequestSingleName(requestDTO);
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
-  // Métodos principales
   @GetMapping("/find-by-dni")
   public ResponseEntity<?> findByDNI(@RequestBody(required = true) RequestByDNIDTO requestDTO) throws Exception {
     // Validaciones
@@ -97,10 +97,11 @@ public class UserInfoController {
       throw new RuntimeException("No se ha ingresado ningún dato");
     }
 
-    UserInfoDTO userInfo = this.userInfoService.findByRequestDNI(requestDTO);
+    UserInfoDTO userInfo = this.userInfoService.searchByRequestDNI(requestDTO);
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
+  // Métodos de prueba
   @GetMapping("/test")
   public ResponseEntity<?> test() throws Exception {
     return new ResponseEntity<>(this.userInfoService.test(), HttpStatus.OK);

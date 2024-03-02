@@ -89,7 +89,7 @@ public class UserInfoService {
   }
 
   // ? Métodos para armar la información con la que se va a trabajar aplicando condiciones
-  public UserInfoDTO findByRequestSingleName(RequestBySingleNameDTO requestDTO) {
+  public UserInfoDTO searchByRequestSingleName(RequestBySingleNameDTO requestDTO) {
     // * Buscar en la base de datos
     Optional<UserInfoEntity> userEntity = Optional.empty();
     userEntity = this.userInfoRepository.findByFullName(requestDTO.getNames(), requestDTO.getFatherLastName(), requestDTO.getMotherLastName());
@@ -128,7 +128,7 @@ public class UserInfoService {
     }
   }
 
-  public UserInfoDTO findByRequestDNI(RequestByDNIDTO requestDTO) {
+  public UserInfoDTO searchByRequestDNI(RequestByDNIDTO requestDTO) {
     // * Buscar en la base de datos
     Optional<UserInfoEntity> userEntity = Optional.empty();
     userEntity = this.userInfoRepository.findByDni(requestDTO.getDni());
