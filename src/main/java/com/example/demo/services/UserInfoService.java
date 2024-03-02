@@ -18,10 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.dtos.RequestConditionsDTO;
 import com.example.demo.dtos.UserInfoDTO;
-import com.example.demo.dtos.RequestConditionsDTO.ConditionsDTO;
+import com.example.demo.dtos.requests.ConditionsDTO;
+import com.example.demo.dtos.requests.RequestByDNIDTO;
+import com.example.demo.dtos.requests.RequestBySingleNameDTO;
 import com.example.demo.entity.UserInfoEntity;
+import com.example.demo.exceptions.SecurityExceptions.NotFoundData;
 import com.example.demo.repository.UserInfoRepository;
 import com.example.demo.utils.DataUtils;
 
@@ -29,16 +31,24 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.java.Log;
 
 @Service
-// @SuppressWarnings("unused")
 @Log
 public class UserInfoService {
+  // Variables de entorno
   @Value("${APP_PRODUCTION}")
   private boolean isProduction;
+  @Value("${LINK_1}")
+  private String link1;
+  @Value("${LINK_2}")
+  private String link2;
+  @Value("${LINK_3}")
+  private String link3;
+  // Inyección de dependencias
   @Autowired
   private UserInfoRepository userInfoRepository;
   // Variables
   public final static int TIMEOUT = 5;
 
+  // ? Métodos de configuración
   public ThreadLocal<RemoteWebDriver> setUp(ThreadLocal<RemoteWebDriver> driver) throws Exception {
     ChromeOptions options = new ChromeOptions();
     options.addArguments("--start-maximized");
@@ -56,13 +66,14 @@ public class UserInfoService {
     driver.remove();
   }
 
+  // ? Prueba
   public String test() throws Exception {
     ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
     driver = this.setUp(driver);
     driver.get().get("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
     driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
 
-    try {      
+    try {
       String html = driver.get().getPageSource();
       Document document = Jsoup.parse(html);
 
@@ -77,62 +88,105 @@ public class UserInfoService {
     }
   }
 
-  // Validar que el usuario no exista en la base de datos y seleccionar el tipo de búsqueda
-  public UserInfoDTO validateDBAndSelectTypeOfSearch(RequestConditionsDTO request) throws Exception {
-    // * Variables
+  // ? Métodos para armar la información con la que se va a trabajar aplicando condiciones
+  public UserInfoDTO findByRequestSingleName(RequestBySingleNameDTO requestDTO) {
+    // * Buscar en la base de datos
     Optional<UserInfoEntity> userEntity = Optional.empty();
-    UserInfoDTO user = new UserInfoDTO();
+    userEntity = this.userInfoRepository.findByFullName(requestDTO.getNames(), requestDTO.getFatherLastName(), requestDTO.getMotherLastName());
 
-    // * Buscar en la base de datos (si encuentra al usuario en la BD, lo retorna)
-    if (request.namesRequestIsValid()) {
-      userEntity = this.userInfoRepository.findByFullName(request.getNames(), request.getFatherLastName(), request.getMotherLastName());
-    } else if (request.dniResquestIsValid()) {
-      userEntity = this.userInfoRepository.findByDni(request.getDni());
-    } else {
-      throw new RuntimeException("Los datos de búsqueda no son válidos");
-    }
-
-    // * Valida si el usuario fue encontrado en la BD (si no, lo busca y lo guarda)
     if (userEntity.isPresent()) {
-      return this.constructResponse(userEntity.get().toDTO(), request.getConditions());
+      // * Sí se encuentra en la BD: Devuelve el usuario
+      return this.constructResponse(userEntity.get().toDTO(), requestDTO.getConditions());
     } else {
-      // * Controlador del navegador a usar
-      ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
-      driver = this.setUp(driver);
-      
+      // * No se encuentra en la BD
       try {
-        // * Recopila: Información básica
-        if (request.namesRequestIsValid()) {
-          user = this.findDNIByNames(driver.get(), request.getNames(), request.getFatherLastName(), request.getMotherLastName());
-        } else if (request.dniResquestIsValid()) {
-          user = this.findNamesByDNI(driver.get(), request.getDni());
+        // Controlador del navegador a usar
+        ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+        driver = this.setUp(driver);
+
+        // * Busca su información básica
+        // Arma el usuario
+        UserInfoDTO user = new UserInfoDTO();
+        user = this.findDNIByNames(driver.get(), requestDTO.getNames(), requestDTO.getFatherLastName(), requestDTO.getMotherLastName());
+        // Verifica si se encontró el usuario
+        if (user.getDni().equals("00000000")) {
+          throw new NotFoundData("No se encontraron resultados");
         }
-        user.formatNames(); // Le da formato a los nombres
-        userEntity = Optional.of(user.toEntity());
 
-        // * Recopila: Cumpleaños
-        user = this.findBirthDate(driver.get(), user);
+        // * Busca su información adicional para ambos casos
+        user = this.searchExtraInfo(driver.get(), user, requestDTO.getConditions());
 
-        // * Guardar
-        this.userInfoRepository.save(user.toEntity());
-        // * Retorna
-        return this.constructResponse(user, request.getConditions());
-      } catch (Exception e) {
-        log.warning(e.getMessage());
-        throw new RuntimeException(e);
-      } finally {
+        // * Cierra el navegador
         this.closeBrowser(driver);
+
+        // * Retorna el usuario
+        return user;
+      } catch (Exception e) {
+        log.warning("Error en findByRequestSingleName(): " + e.getMessage());
+        throw new NotFoundData(e.getMessage());
       }
     }
   }
 
-  // Métodos de búsqueda
+  public UserInfoDTO findByRequestDNI(RequestByDNIDTO requestDTO) {
+    // * Buscar en la base de datos
+    Optional<UserInfoEntity> userEntity = Optional.empty();
+    userEntity = this.userInfoRepository.findByDni(requestDTO.getDni());
+
+    if (userEntity.isPresent()) {
+      // * Sí se encuentra en la BD: Devuelve el usuario
+      return this.constructResponse(userEntity.get().toDTO(), requestDTO.getConditions());
+    } else {
+      // * No se encuentra en la BD
+      try {
+        // Controlador del navegador a usar
+        ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+        driver = this.setUp(driver);
+
+        // * Busca su información básica
+        // Arma el usuario
+        UserInfoDTO user = new UserInfoDTO();
+        user = this.findNamesByDNI(driver.get(), requestDTO.getDni());
+        // Verifica si se encontró el usuario
+        if (user.getDni().equals("00000000")) {
+          throw new NotFoundData("No se encontraron resultados");
+        }
+
+        // * Busca su información adicional para ambos casos
+        user = this.searchExtraInfo(driver.get(), user, requestDTO.getConditions());
+
+        // * Cierra el navegador
+        this.closeBrowser(driver);
+
+        // * Retorna el usuario
+        return user;
+      } catch (Exception e) {
+        log.warning("Error en findByRequestDNI(): " + e.getMessage());
+        throw new NotFoundData(e.getMessage());
+      }
+    }
+  }
+
+  private UserInfoDTO searchExtraInfo(WebDriver driver, UserInfoDTO user, ConditionsDTO conditions) {
+    // * Busca su cumpleaños
+    user = this.findBirthDate(driver, user);
+    
+    // * Formatea los nombres y guarda en la BD
+    user.formatNames();
+    this.userInfoRepository.save(user.toEntity());
+  
+    // * Retorna el usuario con la infomación solicitada
+    return this.constructResponse(user, conditions);
+  }
+
+  // ? Métodos de búsqueda
   private UserInfoDTO findNamesByDNI(WebDriver driver, String value) { 
     try {
       UserInfoDTO user = new UserInfoDTO();
       // Abre la página web
-      driver.get("https://el-dni.com/index.php");
+      driver.get(this.link1);
       driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+      Thread.sleep(500);
       
       // Encuentra el campo de entrada y escribe texto en él
       WebElement inputField = driver.findElement(By.id("dni"));
@@ -157,8 +211,8 @@ public class UserInfoService {
       
       return user;
     } catch (Exception e) {
-      log.warning(e.getMessage());
-        throw new RuntimeException(e);
+      log.warning("Error en findNamesByDNI(): " + e.getMessage());
+      throw new NotFoundData("No se encontraron resultados");
     }
   }
 
@@ -166,8 +220,9 @@ public class UserInfoService {
     try {
       UserInfoDTO user = new UserInfoDTO();
       // Abre la página web
-      driver.get("https://el-dni.com/buscar-dni-por-nombre.php");  
+      driver.get(this.link2);  
       driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+      Thread.sleep(500);
 
       // Encuentra el campo de entrada y escribe texto en él
       WebElement inputNames = driver.findElement(By.id("nombres"));
@@ -194,16 +249,17 @@ public class UserInfoService {
       user.setDni(document.select("#numero2").text().trim());  
       return user;
     } catch (Exception e) {
-      log.warning(e.getMessage());
-      throw new RuntimeException(e);
+      log.warning("Error en findDNIByNames(): " + e.getMessage());
+      throw new NotFoundData("No se encontraron resultados");
     }
   }
 
   private UserInfoDTO findBirthDate(WebDriver driver, UserInfoDTO user) {
     try {
       // Abre la página web
-      driver.get("https://el-dni.com/buscar-cumpleanios-por-nombres.php");
+      driver.get(this.link3);
       driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+      Thread.sleep(500);
       
       // Encuentra el campo de entrada y escribe texto en él
       // Encuentra el campo de entrada y escribe texto en él
@@ -230,35 +286,37 @@ public class UserInfoService {
       
       return user;
     } catch (Exception e) {
-      log.warning(e.getMessage());
-        throw new RuntimeException(e);
+      log.warning("Error en findBirthDate(): " + e.getMessage());
+      throw new NotFoundData("No se encontraron resultados");
     }
   }
 
-  // Métodos de respuesta
+  // ? Métodos de respuesta
   private UserInfoDTO constructResponse(UserInfoDTO user, ConditionsDTO conditions) {
     // Personal info
-    if (conditions.getShowPersonalInfo() == false){
-      user.setDni(null);
-      user.setBirthDate(null);
-      user.setPhone(null);
-      user.setCountry(null);
-      user.setAddress(null);
-      user.setEmails(null);
-    }
-    // Profesional info
-    if (conditions.getShowProfesionalInfo() == false) {
-      user.setLinkedin(null);
-      user.setGithub(null);
-    }
-    // Social medias
-    if (conditions.getShowSocialMedias() == false) {
-      user.setInstagram(null);
-      user.setTikTok(null);
-      user.setFacebook(null);
-      user.setTwitter(null);
-      user.setYouTube(null);
-      user.setTwitch(null);
+    if (conditions != null)  {
+      if (conditions.getShowPersonalInfo() == false){
+        user.setDni(null);
+        user.setBirthDate(null);
+        user.setPhone(null);
+        user.setCountry(null);
+        user.setAddress(null);
+        user.setEmails(null);
+      }
+      // Profesional info
+      if (conditions.getShowProfesionalInfo() == false) {
+        user.setLinkedin(null);
+        user.setGithub(null);
+      }
+      // Social medias
+      if (conditions.getShowSocialMedias() == false) {
+        user.setInstagram(null);
+        user.setTikTok(null);
+        user.setFacebook(null);
+        user.setTwitter(null);
+        user.setYouTube(null);
+        user.setTwitch(null);
+      }
     }
 
     return user;

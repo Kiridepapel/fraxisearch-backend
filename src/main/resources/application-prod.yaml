@@ -1,6 +1,10 @@
 APP_PRODUCTION: true
 FRONTEND_URL: https://fraxidetail.vercel.app
 
+LINK_1: https://el-dni.com/index.php
+LINK_2: https://el-dni.com/buscar-dni-por-nombre.php
+LINK_3: https://el-dni.com/buscar-cumpleanios-por-nombres.php
+
 spring:
   datasource:
     url: jdbc:postgresql://postgresdb:5432/${POSTGRES_DB}

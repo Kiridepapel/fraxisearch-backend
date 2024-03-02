@@ -6,4 +6,9 @@ public class SecurityExceptions {
       super(message);
     }
   }
+  public static class NotFoundData extends RuntimeException {
+    public NotFoundData(String message) {
+      super(message);
+    }
+  }
 }

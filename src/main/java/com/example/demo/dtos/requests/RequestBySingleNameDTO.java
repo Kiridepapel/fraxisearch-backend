@@ -1,45 +1,31 @@
-package com.example.demo.dtos;
+package com.example.demo.dtos.requests;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.example.demo.entity.UserInfoEntity;
 import com.example.demo.utils.DataUtils;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserInfoDTO {
+public class RequestBySingleNameDTO {
   private String names;
   private String fatherLastName;
   private String motherLastName;
-  // Personal info
-  private String dni;
-  private String birthDate;
-  private String phone;
-  private String country;
-  private String address;
-  private List<String> emails;
-  // Profesional info
-  private String linkedin;
-  private String github;
-  // Social medias
-  private String instagram;
-  private String tikTok;
-  private String facebook;
-  private String twitter;
-  private String youTube;
-  private String twitch;
+  private ConditionsDTO conditions;
   
+  public boolean namesRequestIsValid() {
+    return this.names != null && !this.names.isEmpty() && this.names.matches("^[a-zA-Z]+( [a-zA-Z]+)*$") &&
+      this.names.length() >= 3 && this.names.length() <= 50 &&
+      this.fatherLastName != null && !this.fatherLastName.isEmpty() && this.fatherLastName.matches("^[a-zA-Z]+( [a-zA-Z]+)*$") &&
+      this.fatherLastName.length() >= 3 && this.fatherLastName.length() <= 50 &&
+      this.motherLastName != null && !this.motherLastName.isEmpty() && this.motherLastName.matches("^[a-zA-Z]+( [a-zA-Z]+)*$") &&
+      this.motherLastName.length() >= 3 && this.motherLastName.length() <= 50;
+  }
   
   public void formatNames() {
     if (this.names != null && this.fatherLastName != null && this.motherLastName != null &&
@@ -80,30 +66,5 @@ public class UserInfoDTO {
       this.fatherLastName = DataUtils.firstUpper(sbFatherLastName.toString());
       this.motherLastName = DataUtils.firstUpper(sbMotherLastName.toString());
     }
-  }
-
-  public UserInfoEntity toEntity() {
-    return UserInfoEntity.builder()
-      .names(this.names)
-      .fatherLastName(this.fatherLastName)
-      .motherLastName(this.motherLastName)
-      // Personal info
-      .dni(this.dni)
-      .birthDate(this.birthDate)
-      .phone(this.phone)
-      .country(this.country)
-      .address(this.address)
-      .emails(this.emails)
-      // Profesional info
-      .linkedin(this.linkedin)
-      .github(this.github)
-      // Social medias
-      .instagram(this.instagram)
-      .tikTok(this.tikTok)
-      .facebook(this.facebook)
-      .twitter(this.twitter)
-      .youTube(this.youTube)
-      .twitch(this.twitch)
-      .build();
   }
 }
