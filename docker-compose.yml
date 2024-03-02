@@ -41,6 +41,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      # Selenium
+      LINK_1: ${LINK_1}
+      LINK_2: ${LINK_2}
+      LINK_3: ${LINK_3}
     ports:
       - "8080:8080"
     depends_on:

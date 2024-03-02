@@ -1,9 +1,9 @@
 APP_PRODUCTION: true
 FRONTEND_URL: https://fraxidetail.vercel.app
 
-LINK_1: https://el-dni.com/index.php
-LINK_2: https://el-dni.com/buscar-dni-por-nombre.php
-LINK_3: https://el-dni.com/buscar-cumpleanios-por-nombres.php
+LINK_1: ${LINK_1}
+LINK_2: ${LINK_2}
+LINK_3: ${LINK_3}
 
 spring:
   datasource:
