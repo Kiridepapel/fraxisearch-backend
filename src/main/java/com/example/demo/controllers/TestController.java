@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import java.util.Arrays;
 import java.util.List;
 
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,9 @@ public class TestController {
   private UserInfoService userInfoService;
   // Variables
   private List<String> allowedOrigins;
+  protected static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+  public static String remote_url = "http://localhost:4444";
+  public final static int TIMEOUT = 5;
   
   // Constructor
   @PostConstruct
