@@ -43,7 +43,6 @@ public class UserInfoService {
     options.addArguments("--start-maximized");
     driver.set(new RemoteWebDriver(new URL(remote_url), options));
     log.info("Browser Started : Chrome");
-
     driver.get().get(url);
     driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
   }
@@ -57,9 +56,9 @@ public class UserInfoService {
     driver.remove();
   }
 
-  public void test() throws Exception {
+  public Document test() throws Exception {
     this.setUp("https://jkanime.net/saijaku-tamer-wa-gomi-hiroi-no-tabi-wo-hajimemashita/8");
-    Thread.sleep(2000);
+    // Thread.sleep(2000);
     // // * Controlador del navegador a usar
     // WebDriverManager.chromedriver().setup();
     // WebDriver driver = new ChromeDriver();
@@ -75,7 +74,7 @@ public class UserInfoService {
       String html = driver.getPageSource();
       Document document = Jsoup.parse(html);
 
-      log.info("document: " + document);
+      return document;
 
     } catch (Exception e) {
       log.warning(e.getMessage());
