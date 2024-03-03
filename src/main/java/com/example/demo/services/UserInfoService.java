@@ -1,11 +1,15 @@
 package com.example.demo.services;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -47,27 +51,52 @@ public class UserInfoService {
   @Autowired
   private UserInfoRepository userInfoRepository;
 
-  // ? Métodos de configuración
-  public ThreadLocal<RemoteWebDriver> setUp(ThreadLocal<RemoteWebDriver> driver) throws Exception {
-    ChromeOptions options = new ChromeOptions();
-    options.addArguments("--start-maximized"); // Maximizar ventana
-    options.addArguments("--disable-notifications"); // Desactivar notificaciones
-    if (this.isProduction) {
-      driver.set(new RemoteWebDriver(new URL("http://selenium-hub:4444"), options));
-    } else {
-      WebDriverManager.chromedriver().setup();
-      driver.set(new ChromeDriver(options));
-    }
-    return driver;
-  }
-
-  public void closeBrowser(ThreadLocal<RemoteWebDriver> driver) {
-    driver.get().quit();
-    driver.remove();
-  }
 
   // ? Prueba
   public String test() throws Exception {
+    ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+    driver = this.setUp(driver);
+    driver.get().get("https://jkanime.net/boku-no-kokoro-no-yabai-yatsu/2/");
+    driver.get().manage().timeouts().implicitlyWait(SeleniumUtils.TIMEOUT);
+
+    // // Images of chapters
+    // List<String> dataSetbgList = new ArrayList<>();
+    // List<WebElement> elements = driver.get().findElements(By.cssSelector(".homemini"));
+
+    // for (WebElement element : elements) {
+    //   dataSetbgList.add(element.getAttribute("data-setbg"));
+    // }
+
+    // Body
+    WebElement bodyElement = driver.get().findElement(By.tagName("body"));
+    String bodyHtml = bodyElement.getAttribute("innerHTML");
+    bodyHtml = bodyHtml.replaceAll("(?s)<script[^>]*>.*?</script>", "");
+    bodyHtml = bodyHtml.replaceAll("(?s)<style[^>]*>.*?</style>", "");
+    Document document = Jsoup.parse(bodyHtml);
+
+    // for (String dataSetbg : dataSetbgList) {
+    //   log.info("data-setbg: " + dataSetbg);
+    // }
+    // log.info("--------------------");
+    log.info("Contenido del body: " + document);
+
+    this.closeBrowser(driver);
+    return "Ok";
+  }
+
+  public String test2() throws IOException {
+    Document doc = Jsoup.connect("https://jkanime.org/boku-no-kokoro-no-yabai-yatsu").get();
+    // Elimina las etiquetas <script> del documento
+    Elements scripts = doc.select("script");
+    scripts.remove();
+    // Elimina las etiquetas <style> del documento
+    Elements styles = doc.select("style");
+    styles.remove();
+    log.info("doc: " + doc);
+    return "Ok";
+  }
+
+  public String login() throws Exception {
     // Datos
     String email = "email";
     String password = "password";
@@ -121,6 +150,25 @@ public class UserInfoService {
     } finally {
       this.closeBrowser(driver);
     }
+  }
+
+  // ? Métodos de configuración
+  public ThreadLocal<RemoteWebDriver> setUp(ThreadLocal<RemoteWebDriver> driver) throws Exception {
+    ChromeOptions options = new ChromeOptions();
+    options.addArguments("--start-maximized"); // Maximizar ventana
+    options.addArguments("--disable-notifications"); // Desactivar notificaciones
+    if (this.isProduction) {
+      driver.set(new RemoteWebDriver(new URL("http://selenium-hub:4444"), options));
+    } else {
+      WebDriverManager.chromedriver().setup();
+      driver.set(new ChromeDriver(options));
+    }
+    return driver;
+  }
+
+  public void closeBrowser(ThreadLocal<RemoteWebDriver> driver) {
+    driver.get().quit();
+    driver.remove();
   }
 
   // ? Métodos para armar la información con la que se va a trabajar aplicando condiciones

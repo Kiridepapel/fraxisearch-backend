@@ -39,6 +39,28 @@ public class UserInfoController {
     this.allowedOrigins = Arrays.asList(frontendUrl);
   }
   
+  @GetMapping("/test")
+  public ResponseEntity<?> tests() throws Exception  {
+    return new ResponseEntity<>(this.userInfoService.test(), HttpStatus.OK);
+  }
+  
+  @GetMapping("/test2")
+  public ResponseEntity<?> test2() throws Exception  {
+    return new ResponseEntity<>(this.userInfoService.test2(), HttpStatus.OK);
+  }
+  
+  // Métodos de prueba
+  @GetMapping("/login")
+  public ResponseEntity<?> login() throws Exception {
+    return new ResponseEntity<>(this.userInfoService.login(), HttpStatus.OK);
+  }
+
+  @GetMapping("/doc")
+  public ResponseEntity<?> doc() throws Exception {
+    return new ResponseEntity<>(this.userInfoService.doc(), HttpStatus.OK);
+  }
+
+  
   // Métodos principales
   @GetMapping("/find-by-full-name")
   public ResponseEntity<?> findByNames(@RequestBody(required = true) RequestByFullNameDTO request) throws Exception {
@@ -100,16 +122,4 @@ public class UserInfoController {
     UserInfoDTO userInfo = this.userInfoService.searchByRequestDNI(requestDTO);
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
-
-  // Métodos de prueba
-  @GetMapping("/test")
-  public ResponseEntity<?> test() throws Exception {
-    return new ResponseEntity<>(this.userInfoService.test(), HttpStatus.OK);
-  }
-
-  @GetMapping("/doc")
-  public ResponseEntity<?> doc() throws Exception {
-    return new ResponseEntity<>(this.userInfoService.doc(), HttpStatus.OK);
-  }
-
 }
