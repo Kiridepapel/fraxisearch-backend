@@ -17,8 +17,10 @@ import com.example.demo.dtos.requests.RequestByDNIDTO;
 import com.example.demo.dtos.requests.RequestByFullNameDTO;
 import com.example.demo.dtos.requests.RequestBySingleNameDTO;
 import com.example.demo.services.UserInfoService;
+import com.example.demo.utils.DataUtils;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -40,27 +42,30 @@ public class UserInfoController {
   }
   
   @GetMapping("/test")
-  public ResponseEntity<?> tests() throws Exception  {
+  public ResponseEntity<?> tests(HttpServletRequest request) throws Exception  {
+    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
     return new ResponseEntity<>(this.userInfoService.test(), HttpStatus.OK);
   }
   
   @GetMapping("/test2")
-  public ResponseEntity<?> test2() throws Exception  {
+  public ResponseEntity<?> test2(HttpServletRequest request) throws Exception  {
+    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
     return new ResponseEntity<>(this.userInfoService.test2(), HttpStatus.OK);
   }
   
   // Métodos de prueba
   @GetMapping("/login")
-  public ResponseEntity<?> login() throws Exception {
+  public ResponseEntity<?> login(HttpServletRequest request) throws Exception {
+    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
     return new ResponseEntity<>(this.userInfoService.login(), HttpStatus.OK);
   }
 
   @GetMapping("/doc")
-  public ResponseEntity<?> doc() throws Exception {
+  public ResponseEntity<?> doc(HttpServletRequest request) throws Exception {
+    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
     return new ResponseEntity<>(this.userInfoService.doc(), HttpStatus.OK);
   }
 
-  
   // Métodos principales
   @GetMapping("/find-by-full-name")
   public ResponseEntity<?> findByNames(@RequestBody(required = true) RequestByFullNameDTO request) throws Exception {
