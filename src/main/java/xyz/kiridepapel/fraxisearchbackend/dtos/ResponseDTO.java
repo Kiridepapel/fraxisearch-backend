@@ -1,4 +1,4 @@
-package com.example.demo.dtos;
+package xyz.kiridepapel.fraxisearchbackend.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

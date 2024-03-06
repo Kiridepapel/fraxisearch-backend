@@ -1,4 +1,4 @@
-package com.example.demo.controllers;
+package xyz.kiridepapel.fraxisearchbackend.controllers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dtos.UserInfoDTO;
-import com.example.demo.dtos.requests.RequestByDNIDTO;
-import com.example.demo.dtos.requests.RequestByFullNameDTO;
-import com.example.demo.dtos.requests.RequestBySingleNameDTO;
-import com.example.demo.services.UserInfoService;
-import com.example.demo.utils.DataUtils;
+import xyz.kiridepapel.fraxisearchbackend.dtos.UserInfoDTO;
+import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestByDNIDTO;
+import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestByFullNameDTO;
+import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestBySingleNameDTO;
+import xyz.kiridepapel.fraxisearchbackend.services.UserInfoService;
+import xyz.kiridepapel.fraxisearchbackend.utils.DataUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;

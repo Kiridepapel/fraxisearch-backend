@@ -1,8 +1,8 @@
-package com.example.demo.entity;
+package xyz.kiridepapel.fraxisearchbackend.entity;
 
 import java.util.List;
 
-import com.example.demo.dtos.UserInfoDTO;
+import xyz.kiridepapel.fraxisearchbackend.dtos.UserInfoDTO;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

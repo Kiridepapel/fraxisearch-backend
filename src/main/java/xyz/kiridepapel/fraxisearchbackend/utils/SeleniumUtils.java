@@ -1,4 +1,4 @@
-package com.example.demo.utils;
+package xyz.kiridepapel.fraxisearchbackend.utils;
 
 import java.time.Duration;
 

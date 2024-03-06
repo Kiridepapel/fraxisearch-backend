@@ -1,4 +1,4 @@
-package com.example.demo.exceptions;
+package xyz.kiridepapel.fraxisearchbackend.exceptions;
 
 public class SecurityExceptions {
   public static class ProtectedResource extends RuntimeException {

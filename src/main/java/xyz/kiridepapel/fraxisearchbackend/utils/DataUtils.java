@@ -1,10 +1,10 @@
-package com.example.demo.utils;
+package xyz.kiridepapel.fraxisearchbackend.utils;
 
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.example.demo.exceptions.SecurityExceptions.ProtectedResource;
+import xyz.kiridepapel.fraxisearchbackend.exceptions.SecurityExceptions.ProtectedResource;
 
 @Component
 public class DataUtils {

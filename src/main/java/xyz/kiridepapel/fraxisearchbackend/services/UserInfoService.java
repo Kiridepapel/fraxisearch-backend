@@ -1,10 +1,8 @@
-package com.example.demo.services;
+package xyz.kiridepapel.fraxisearchbackend.services;
 
 import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.jsoup.Jsoup;
@@ -22,15 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.dtos.UserInfoDTO;
-import com.example.demo.dtos.requests.ConditionsDTO;
-import com.example.demo.dtos.requests.RequestByDNIDTO;
-import com.example.demo.dtos.requests.RequestBySingleNameDTO;
-import com.example.demo.entity.UserInfoEntity;
-import com.example.demo.exceptions.SecurityExceptions.NotFoundData;
-import com.example.demo.repository.UserInfoRepository;
-import com.example.demo.utils.DataUtils;
-import com.example.demo.utils.SeleniumUtils;
+import xyz.kiridepapel.fraxisearchbackend.dtos.UserInfoDTO;
+import xyz.kiridepapel.fraxisearchbackend.dtos.requests.ConditionsDTO;
+import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestByDNIDTO;
+import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestBySingleNameDTO;
+import xyz.kiridepapel.fraxisearchbackend.entity.UserInfoEntity;
+import xyz.kiridepapel.fraxisearchbackend.exceptions.SecurityExceptions.NotFoundData;
+import xyz.kiridepapel.fraxisearchbackend.repository.UserInfoRepository;
+import xyz.kiridepapel.fraxisearchbackend.utils.DataUtils;
+import xyz.kiridepapel.fraxisearchbackend.utils.SeleniumUtils;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.java.Log;

@@ -1,4 +1,4 @@
-package com.example.demo.dtos.requests;
+package xyz.kiridepapel.fraxisearchbackend.dtos.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
