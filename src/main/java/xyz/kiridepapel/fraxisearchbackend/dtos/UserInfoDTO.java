@@ -23,10 +23,10 @@ public class UserInfoDTO {
   private String fatherLastName;
   private String motherLastName;
   // Basic Personal info
-  private String dni;
-  private String years;
+  private Integer dni;
+  private Integer age;
   private String bornDate;
-  private String birthDate;
+  private String nextBirthDate;
   // Personal info
   private String phone;
   private String country;
@@ -94,9 +94,9 @@ public class UserInfoDTO {
       .motherLastName(this.motherLastName)
       // Basic Personal info
       .dni(this.dni)
-      .years(this.years)
+      .age(this.age)
       .bornDate(this.bornDate)
-      .birthDate(this.birthDate)
+      .nextBirthDate(this.nextBirthDate)
       // Personal info
       .phone(this.phone)
       .country(this.country)

@@ -40,7 +40,7 @@ public class SeleniumServiceImpl implements ISeleniumService {
   private String link3;
   // Inyección de dependencias
   private final UserInfoDaoRepository userInfoDaoRepository;
-  
+  // Constructor
   public SeleniumServiceImpl(UserInfoDaoRepository userInfoDaoRepository) {
     this.userInfoDaoRepository = userInfoDaoRepository;
   }
@@ -71,7 +71,12 @@ public class SeleniumServiceImpl implements ISeleniumService {
     Optional<UserInfoEntity> userEntity = Optional.empty();
     userEntity = this.userInfoDaoRepository.findByFullName(requestDTO.getNames(), requestDTO.getFatherLastName(), requestDTO.getMotherLastName());
 
-    if (userEntity.isPresent()) {
+    // Borra al usuario si está en la BD y se fuerza la búsqueda
+    if (userEntity.isPresent() && UserInfoServiceImpl.forceSearch) {
+      this.userInfoDaoRepository.delete(userEntity.get());
+    }
+
+    if (userEntity.isPresent() && !UserInfoServiceImpl.forceSearch) {
       UserInfoDTO user = userEntity.get().toDTO();
       user.setIsInDataBase(true);
       return user;
@@ -83,20 +88,20 @@ public class SeleniumServiceImpl implements ISeleniumService {
         // Configura y abre el navegador
         driver = this.setUp(driver);
 
-        // ? Información básica
+        // * Información básica
         UserInfoDTO user = new UserInfoDTO();
         user = this.findDNIByNames(driver.get(), requestDTO.getNames(), requestDTO.getFatherLastName(), requestDTO.getMotherLastName());
-        if (user.getDni().equals("00000000")) {
+        if (user.getDni() == 0) {
           throw new NotFoundData("No se encontraron resultados");
         }
 
-        // ? Fecha de naicmiento
+        // * Fecha de nacimiento
         user = this.findBornDate(driver.get(), user);
 
         user.setIsInDataBase(false);
         return user;
       } catch (Exception e) {
-        log.warning("Error en findByRequestSingleName(): " + e.getMessage());
+        log.warning("Error en searchOnChromeBySingleName(): " + e.getMessage());
         throw new NotFoundData(e.getMessage());
       } finally {
         // Cierra el navegador
@@ -109,9 +114,14 @@ public class SeleniumServiceImpl implements ISeleniumService {
   public UserInfoDTO searchOnChromeByDNI(RequestByDNIDTO requestDTO) {
     // Devuelve al usuario si lo encuentra en la BD
     Optional<UserInfoEntity> userEntity = Optional.empty();
-    userEntity = this.userInfoDaoRepository.findByDni(requestDTO.getDni());
+    userEntity = this.userInfoDaoRepository.findByDni(Integer.parseInt(requestDTO.getDni()));
+    
+    // Borra al usuario si está en la BD y se fuerza la búsqueda
+    if (userEntity.isPresent() && UserInfoServiceImpl.forceSearch) {
+      this.userInfoDaoRepository.delete(userEntity.get());
+    }
 
-    if (userEntity.isPresent()) {
+    if (userEntity.isPresent() && !UserInfoServiceImpl.forceSearch) {
       UserInfoDTO user = userEntity.get().toDTO();
       user.setIsInDataBase(true);
       return user;
@@ -123,20 +133,20 @@ public class SeleniumServiceImpl implements ISeleniumService {
         // Configura y abre el navegador
         driver = this.setUp(driver);
 
-        // ? Información básica
+        // * Información básica
         UserInfoDTO user = new UserInfoDTO();
         user = this.findNamesByDNI(driver.get(), requestDTO.getDni());
-        if (user.getDni().equals("00000000")) {
+        if (user.getDni() == 0) {
           throw new NotFoundData("No se encontraron resultados");
         }
 
-        // ? Fecha de naicmiento
+        // * Fecha de nacimiento
         user = this.findBornDate(driver.get(), user);
 
         user.setIsInDataBase(false);
         return user;
       } catch (Exception e) {
-        log.warning("Error en findByRequestDNI(): " + e.getMessage());
+        log.warning("Error en searchOnChromeByDNI(): " + e.getMessage());
         throw new NotFoundData(e.getMessage());
       } finally {
         // Cierra el navegador
@@ -171,7 +181,7 @@ public class SeleniumServiceImpl implements ISeleniumService {
       user.setNames(document.select("#nombres").text());
       user.setFatherLastName(DataUtils.firstUpper(document.select("#ape_pat").text()));
       user.setMotherLastName(DataUtils.firstUpper(document.select("#ape_mat").text()));
-      user.setDni(document.select("#numero").text());
+      user.setDni(Integer.parseInt(document.select("#numero").text()));
       
       return user;
     } catch (Exception e) {
@@ -209,7 +219,7 @@ public class SeleniumServiceImpl implements ISeleniumService {
       user.setNames(names);
       user.setFatherLastName(fatherLastName);
       user.setMotherLastName(motherLastName);
-      user.setDni(document.select("#numero2").text().trim());
+      user.setDni(Integer.parseInt(document.select("#numero2").text().trim()));
 
       return user;
     } catch (Exception e) {
@@ -244,7 +254,6 @@ public class SeleniumServiceImpl implements ISeleniumService {
       Document document = Jsoup.parse(html);
 
       String bornDate = document.select("#fecha_cumpleanios").text().split("cumple años el")[1].trim();
-      bornDate = DataUtils.parseDate(bornDate, "dd/MM/yyyy", "dd 'de' MMMM 'de' yyyy", 0);
       
       // Asignar valores
       user.setBornDate(bornDate);

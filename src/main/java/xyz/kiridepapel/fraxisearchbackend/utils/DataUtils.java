@@ -1,7 +1,9 @@
 package xyz.kiridepapel.fraxisearchbackend.utils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 // import java.util.Map;
@@ -29,7 +31,15 @@ public class DataUtils {
   }
   
   // ? Dates
-  public static String parseDate(String date, String formatIn, String formatOut, int daysToModify) {
+  public static LocalDateTime getLocalDateTimeNow(Boolean isProduction) {
+    return isProduction ? LocalDateTime.now().minusHours(5) : LocalDateTime.now();
+  }
+
+  public static Date getDateNow(Boolean isProduction) {
+    return isProduction ? new Date(System.currentTimeMillis() - 18000000) : new Date();
+  }
+  
+  public static String parseDate(String date, String formatIn, String formatOut, int yearsToModify) {
     if (date == null || date.isEmpty()) {
       return null;
     }
@@ -38,7 +48,7 @@ public class DataUtils {
     DateTimeFormatter formatterOut = DateTimeFormatter.ofPattern(formatOut, new Locale("es", "ES"));
 
     LocalDate currentDate = LocalDate.parse(date, formatterIn);
-    LocalDate nextChapterDate = currentDate.plusDays(daysToModify);
+    LocalDate nextChapterDate = currentDate.plusYears(yearsToModify);
 
     String outputDate = nextChapterDate.format(formatterOut);
     for (String month : mayusMonths) {

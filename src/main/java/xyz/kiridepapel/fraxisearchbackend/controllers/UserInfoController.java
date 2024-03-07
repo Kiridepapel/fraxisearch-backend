@@ -19,10 +19,12 @@ import xyz.kiridepapel.fraxisearchbackend.exceptions.SecurityExceptions.BadNames
 import xyz.kiridepapel.fraxisearchbackend.services.interfaces.ISeleniumService;
 import xyz.kiridepapel.fraxisearchbackend.services.interfaces.IUserInfoService;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.java.Log;
 
 @RestController
 @RequestMapping("/fraxisearch/api/v1")
 @SuppressWarnings("unused")
+@Log
 public class UserInfoController {
   // Variables de entorno
   @Value("${FRONTEND_URL}")

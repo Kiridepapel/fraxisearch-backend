@@ -28,10 +28,10 @@ public class UserInfoEntity {
   private String fatherLastName;
   private String motherLastName;
   // Basic Personal info
-  private String dni;
-  private String years;
+  private Integer dni;
+  private Integer age;
   private String bornDate;
-  private String birthDate;
+  private String nextBirthDate;
   // Personal info
   private String phone;
   private String country;
@@ -55,9 +55,9 @@ public class UserInfoEntity {
       .motherLastName(this.motherLastName)
       // Basic Personal info
       .dni(this.dni)
-      .years(this.years)
+      .age(this.age)
       .bornDate(this.bornDate)
-      .birthDate(this.birthDate)
+      .nextBirthDate(this.nextBirthDate)
       // Personal info
       .phone(this.phone)
       .country(this.country)
@@ -83,9 +83,9 @@ public class UserInfoEntity {
       && this.motherLastName != null
       // Basic Personal info
       && this.dni != null
-      && this.years != null
+      && this.age != null
       && this.bornDate != null
-      && this.birthDate != null
+      && this.nextBirthDate != null
       // Personal info
       && this.phone != null
       && this.country != null
@@ -109,9 +109,9 @@ public class UserInfoEntity {
     this.motherLastName = user.getMotherLastName();
     // Basic Personal info
     this.dni = user.getDni();
-    this.years = user.getYears();
+    this.age = user.getAge();
     this.bornDate = user.getBornDate();
-    this.birthDate = user.getBirthDate();
+    this.nextBirthDate = user.getNextBirthDate();
     // Personal info
     this.phone = user.getPhone();
     this.country = user.getCountry();

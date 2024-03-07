@@ -10,7 +10,7 @@ import xyz.kiridepapel.fraxisearchbackend.entity.UserInfoEntity;
 
 @Repository
 public interface UserInfoDaoRepository extends JpaRepository<UserInfoEntity, Long>{
-  public Optional<UserInfoEntity> findByDni(String dni);
+  public Optional<UserInfoEntity> findByDni(Integer dni);
 
   @Query("SELECT u FROM UserInfoEntity u WHERE u.names = ?1 AND u.fatherLastName = ?2 AND u.motherLastName = ?3")
   public Optional<UserInfoEntity> findByFullName(String names, String fatherLastName, String motherLastName);
