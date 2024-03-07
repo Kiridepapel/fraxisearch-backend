@@ -11,4 +11,9 @@ public class SecurityExceptions {
       super(message);
     }
   }
+  public static class BadNames extends RuntimeException {
+    public BadNames(String message) {
+      super(message);
+    }
+  }
 }

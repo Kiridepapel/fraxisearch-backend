@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RequestByFullNameDTO {
   private String fullName;
-  private ConditionsDTO conditions;
 }

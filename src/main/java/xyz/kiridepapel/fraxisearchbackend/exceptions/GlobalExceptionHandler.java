@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import xyz.kiridepapel.fraxisearchbackend.dtos.ResponseDTO;
-import xyz.kiridepapel.fraxisearchbackend.exceptions.SecurityExceptions.NotFoundData;
-import xyz.kiridepapel.fraxisearchbackend.exceptions.SecurityExceptions.ProtectedResource;
+import xyz.kiridepapel.fraxisearchbackend.exceptions.SecurityExceptions.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,5 +23,12 @@ public class GlobalExceptionHandler {
     ResponseDTO response = new ResponseDTO(ex.getMessage(), 401);
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
   }
+
+  @ExceptionHandler(BadNames.class)
+  public ResponseEntity<?> handleBadNames(BadNames ex) {
+    ResponseDTO response = new ResponseDTO(ex.getMessage(), 401);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+  }
+
   
 }

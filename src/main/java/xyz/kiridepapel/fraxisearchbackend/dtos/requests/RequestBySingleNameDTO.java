@@ -16,7 +16,6 @@ public class RequestBySingleNameDTO {
   private String names;
   private String fatherLastName;
   private String motherLastName;
-  private ConditionsDTO conditions;
   
   public boolean namesRequestIsValid() {
     return this.names != null && !this.names.isEmpty() && this.names.matches("^[a-zA-Z]+( [a-zA-Z]+)*$") &&
@@ -25,6 +24,15 @@ public class RequestBySingleNameDTO {
       this.fatherLastName.length() >= 3 && this.fatherLastName.length() <= 50 &&
       this.motherLastName != null && !this.motherLastName.isEmpty() && this.motherLastName.matches("^[a-zA-Z]+( [a-zA-Z]+)*$") &&
       this.motherLastName.length() >= 3 && this.motherLastName.length() <= 50;
+  }
+
+  public void upperNames() {
+    if (this.names != null && this.fatherLastName != null && this.motherLastName != null &&
+        !this.names.isEmpty() && !this.fatherLastName.isEmpty() && !this.motherLastName.isEmpty()) {
+      this.names = this.names.toUpperCase().trim();
+      this.fatherLastName = this.fatherLastName.toUpperCase().trim();
+      this.motherLastName = this.motherLastName.toUpperCase().trim();
+    }
   }
   
   public void formatNames() {
@@ -62,9 +70,9 @@ public class RequestBySingleNameDTO {
       matcherMotherLastName.appendTail(sbMotherLastName);
     
       // Asigna los valores modificados
-      this.names = DataUtils.firstUpper(sbNames.toString());
-      this.fatherLastName = DataUtils.firstUpper(sbFatherLastName.toString());
-      this.motherLastName = DataUtils.firstUpper(sbMotherLastName.toString());
+      this.names = DataUtils.firstUpper(sbNames.toString()).trim();
+      this.fatherLastName = DataUtils.firstUpper(sbFatherLastName.toString()).trim();
+      this.motherLastName = DataUtils.firstUpper(sbMotherLastName.toString()).trim();
     }
   }
 }

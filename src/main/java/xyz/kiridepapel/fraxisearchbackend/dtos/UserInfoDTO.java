@@ -22,9 +22,12 @@ public class UserInfoDTO {
   private String names;
   private String fatherLastName;
   private String motherLastName;
-  // Personal info
+  // Basic Personal info
   private String dni;
+  private String years;
+  private String bornDate;
   private String birthDate;
+  // Personal info
   private String phone;
   private String country;
   private String address;
@@ -39,7 +42,9 @@ public class UserInfoDTO {
   private String twitter;
   private String youTube;
   private String twitch;
-  
+
+  // Variables
+  private Boolean isInDataBase;
   
   public void formatNames() {
     if (this.names != null && this.fatherLastName != null && this.motherLastName != null &&
@@ -87,9 +92,12 @@ public class UserInfoDTO {
       .names(this.names)
       .fatherLastName(this.fatherLastName)
       .motherLastName(this.motherLastName)
-      // Personal info
+      // Basic Personal info
       .dni(this.dni)
+      .years(this.years)
+      .bornDate(this.bornDate)
       .birthDate(this.birthDate)
+      // Personal info
       .phone(this.phone)
       .country(this.country)
       .address(this.address)

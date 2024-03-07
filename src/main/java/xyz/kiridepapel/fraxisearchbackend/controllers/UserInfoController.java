@@ -3,7 +3,6 @@ package xyz.kiridepapel.fraxisearchbackend.controllers;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,54 +15,31 @@ import xyz.kiridepapel.fraxisearchbackend.dtos.UserInfoDTO;
 import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestByDNIDTO;
 import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestByFullNameDTO;
 import xyz.kiridepapel.fraxisearchbackend.dtos.requests.RequestBySingleNameDTO;
-import xyz.kiridepapel.fraxisearchbackend.services.UserInfoService;
-import xyz.kiridepapel.fraxisearchbackend.utils.DataUtils;
-
+import xyz.kiridepapel.fraxisearchbackend.exceptions.SecurityExceptions.BadNames;
+import xyz.kiridepapel.fraxisearchbackend.services.interfaces.ISeleniumService;
+import xyz.kiridepapel.fraxisearchbackend.services.interfaces.IUserInfoService;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/fraxisearch/api/v1")
 @SuppressWarnings("unused")
 public class UserInfoController {
   // Variables de entorno
   @Value("${FRONTEND_URL}")
   private String frontendUrl;
-  // Inyección de dependencias
-  @Autowired
-  private UserInfoService userInfoService;
   // Variables
   private List<String> allowedOrigins;
+  // Inyección de dependencias
+  private final IUserInfoService IUserInfoService;
+
+  public UserInfoController(IUserInfoService IUserInfoService) {
+    this.IUserInfoService = IUserInfoService;
+  }
   
   // Constructor
   @PostConstruct
   public void init() {
     this.allowedOrigins = Arrays.asList(frontendUrl);
-  }
-  
-  @GetMapping("/test")
-  public ResponseEntity<?> tests(HttpServletRequest request) throws Exception  {
-    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
-    return new ResponseEntity<>(this.userInfoService.test(), HttpStatus.OK);
-  }
-  
-  @GetMapping("/test2")
-  public ResponseEntity<?> test2(HttpServletRequest request) throws Exception  {
-    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
-    return new ResponseEntity<>(this.userInfoService.test2(), HttpStatus.OK);
-  }
-  
-  // Métodos de prueba
-  @GetMapping("/login")
-  public ResponseEntity<?> login(HttpServletRequest request) throws Exception {
-    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
-    return new ResponseEntity<>(this.userInfoService.login(), HttpStatus.OK);
-  }
-
-  @GetMapping("/doc")
-  public ResponseEntity<?> doc(HttpServletRequest request) throws Exception {
-    DataUtils.verifyAllowedOrigin(List.of("nonee"), request.getHeader("Origin"));
-    return new ResponseEntity<>(this.userInfoService.doc(), HttpStatus.OK);
   }
 
   // Métodos principales
@@ -72,30 +48,34 @@ public class UserInfoController {
     // Validaciones
     // DataUtils.verifyAllowedOrigin(this.allowedOrigins, request.getHeader("Origin"));
 
-    // Arma el objeto general de búsqueda por nombres apellidos
+    // Objeto de búsqueda
     RequestBySingleNameDTO requestDTO = new RequestBySingleNameDTO();
     String[] nameSplit = request.getFullName().split(" ");
-    if (nameSplit.length == 3) {
-      requestDTO.setNames(nameSplit[0]);
-      requestDTO.setFatherLastName(nameSplit[1]);
-      requestDTO.setMotherLastName(nameSplit[2]);
-    } else if (nameSplit.length == 4) {
-      requestDTO.setNames(nameSplit[0] + " " + nameSplit[1]);
-      requestDTO.setFatherLastName(nameSplit[2]);
-      requestDTO.setMotherLastName(nameSplit[3]);
+    
+    // Apellidos
+    requestDTO.setFatherLastName(nameSplit[nameSplit.length - 2]);
+    requestDTO.setMotherLastName(nameSplit[nameSplit.length - 1]);
+
+    // Nombres
+    if (nameSplit.length >= 3 && nameSplit.length <= 5) {
+      String names = "";
+      for (int i = 0; i <= nameSplit.length - 3; i++) {
+        names += nameSplit[i] + " ";
+      }
+      requestDTO.setNames(names.trim());
     } else {
-      throw new RuntimeException("El nombre ingresado no es válido");
+      throw new BadNames("El nombre ingresado no es válido, prueba otra opción de búsqueda");
     }
     
     // Verifica que se haya ingresado algún dato
     if (!requestDTO.namesRequestIsValid()) {
-      throw new RuntimeException("No se ha ingresado ningún dato");
+      throw new BadNames("No se ha ingresado ningún dato");
     }
-    // Formatea los nombres para que coincidan con los de la BD
-    requestDTO.formatNames();
 
-    UserInfoDTO userInfo = this.userInfoService.searchByRequestSingleName(requestDTO);
-    return new ResponseEntity<>(userInfo, HttpStatus.OK);
+    // Formatea los nombres para que coincidan con los de la BD
+    UserInfoDTO user = this.IUserInfoService.searchBySingleName(requestDTO);
+
+    return new ResponseEntity<>(user, HttpStatus.OK);
   }
 
   @GetMapping("/find-by-single-name")
@@ -108,10 +88,10 @@ public class UserInfoController {
       throw new RuntimeException("No se ha ingresado ningún dato");
     }
     // Formatea los nombres para que coincidan con los de la BD
-    requestDTO.formatNames();
+    requestDTO.upperNames();
+    UserInfoDTO user = this.IUserInfoService.searchBySingleName(requestDTO);
 
-    UserInfoDTO userInfo = this.userInfoService.searchByRequestSingleName(requestDTO);
-    return new ResponseEntity<>(userInfo, HttpStatus.OK);
+    return new ResponseEntity<>(user, HttpStatus.OK);
   }
 
   @GetMapping("/find-by-dni")
@@ -124,7 +104,8 @@ public class UserInfoController {
       throw new RuntimeException("No se ha ingresado ningún dato");
     }
 
-    UserInfoDTO userInfo = this.userInfoService.searchByRequestDNI(requestDTO);
-    return new ResponseEntity<>(userInfo, HttpStatus.OK);
+    UserInfoDTO user = this.IUserInfoService.searchByDNI(requestDTO);
+
+    return new ResponseEntity<>(user, HttpStatus.OK);
   }
 }

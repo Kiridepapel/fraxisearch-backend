@@ -27,9 +27,12 @@ public class UserInfoEntity {
   private String names;
   private String fatherLastName;
   private String motherLastName;
-  // Personal info
+  // Basic Personal info
   private String dni;
+  private String years;
+  private String bornDate;
   private String birthDate;
+  // Personal info
   private String phone;
   private String country;
   private String address;
@@ -50,9 +53,12 @@ public class UserInfoEntity {
       .names(this.names)
       .fatherLastName(this.fatherLastName)
       .motherLastName(this.motherLastName)
-      // Personal info
+      // Basic Personal info
       .dni(this.dni)
+      .years(this.years)
+      .bornDate(this.bornDate)
       .birthDate(this.birthDate)
+      // Personal info
       .phone(this.phone)
       .country(this.country)
       .address(this.address)
@@ -75,9 +81,12 @@ public class UserInfoEntity {
       && this.names != null
       && this.fatherLastName != null
       && this.motherLastName != null
-      // Personal info
+      // Basic Personal info
       && this.dni != null
+      && this.years != null
+      && this.bornDate != null
       && this.birthDate != null
+      // Personal info
       && this.phone != null
       && this.country != null
       && this.address != null
@@ -98,9 +107,12 @@ public class UserInfoEntity {
     this.names = user.getNames();
     this.fatherLastName = user.getFatherLastName();
     this.motherLastName = user.getMotherLastName();
-    // Personal info
+    // Basic Personal info
     this.dni = user.getDni();
+    this.years = user.getYears();
+    this.bornDate = user.getBornDate();
     this.birthDate = user.getBirthDate();
+    // Personal info
     this.phone = user.getPhone();
     this.country = user.getCountry();
     this.address = user.getAddress();
